@@ -1,0 +1,12 @@
+# Ordered list of releases.
+environments:
+  default:
+  preview:
+  staging:
+  production:
+
+helmfiles:
+  - path: "releases/app.yaml"
+    values:
+      -
+{{ .Values | toYaml | indent 8 }}
