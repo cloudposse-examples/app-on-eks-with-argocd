@@ -16,7 +16,7 @@ repositories:
   url: "https://charts.cloudposse.com/incubator/"
 
 - name: "cloudposse-incubator-test"
-  url: "https://charts.dev.cloudposse.com/monochart-support-k8s-1.22"
+  url: "https://charts.dev.cloudposse.com/refs/pull/271/merge/incubator"
 
 releases:
 #
