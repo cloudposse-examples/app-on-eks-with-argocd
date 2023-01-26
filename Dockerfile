@@ -8,7 +8,7 @@ RUN cd /src && \
     go build -o example-app
 
 # Build the final image
-FROM alpine:3.11 as final
+FROM alpine:3.17 as final
 
 # Install the cloudposse alpine repository
 ADD https://apk.cloudposse.com/ops@cloudposse.com.rsa.pub /etc/apk/keys/
