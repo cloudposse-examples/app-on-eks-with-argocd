@@ -12,7 +12,7 @@ import (
 func main() {
 	c := os.Getenv("COLOR")
 	if len(c) == 0 {
-		c = "cyan"
+		c = "darkcyan"
 	}
 	
 	addr := os.Getenv("LISTEN")
