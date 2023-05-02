@@ -13,7 +13,7 @@ jobs:
     with:
       organization: "${{ github.event.repository.owner.login }}"
       repository: "${{ github.event.repository.name }}"
-      # path: deploy
+      path: deploy
       version: ${{ github.event.release.tag_name }}
     secrets:
       github-private-actions-pat: "${{ secrets.PUBLIC_REPO_ACCESS_TOKEN }}"
