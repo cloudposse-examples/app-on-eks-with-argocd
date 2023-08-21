@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
@@ -21,6 +22,12 @@ func main() {
 	}
 	
 	count := 0
+
+	// Calling Sleep method
+	time.Sleep(60 * time.Second)
+	
+	// Printed after sleep is over
+	fmt.Println("Sleep Over.....")	
 
 	m := http.NewServeMux()
 	s := http.Server{Addr: addr, Handler: m}
