@@ -24,7 +24,7 @@ func main() {
 	count := 0
 
 	// Calling Sleep method
-	time.Sleep(5 * time.Second)
+	time.Sleep(30 * time.Second)
 	
 	// Printed after sleep is over
 	fmt.Println("Sleep Over.....")	
