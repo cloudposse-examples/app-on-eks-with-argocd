@@ -33,7 +33,7 @@ releases:
         repository: '{{ env "IMAGE_NAME" | default "cloudposse/example-app" }}'
         tag: '{{ env "IMAGE_TAG" | default "0.1.0" }}'
         pullPolicy: Always
-      replicaCount: jfjsakfjsdkf
+      replicaCount: 1
       # Deployment configuration
       deployment:
         enabled: true
