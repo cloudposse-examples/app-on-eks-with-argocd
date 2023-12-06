@@ -1,0 +1,130 @@
+name: |-
+  CI - Promote Docker image 
+  
+  Promote Docker image to specific version tag and push it to ECR
+
+  ### Usage 
+
+  ```yaml
+    name: Release
+    on:
+      release:
+        types: [published]
+
+    jobs:
+      ci:
+        uses: cloudposse/github-actions-workflows/.github/workflows/ci-dockerized-app-promote.yml@main
+        with:
+          organization: $\{\{ github.event.repository.owner.login \}\}
+          repository: $\{\{ github.event.repository.name \}\}
+          version: $\{\{ github.event.release.tag_name \}\}
+        secrets:
+          ecr-region: $\{\{ secrets.ecr-region \}\}
+          ecr-iam-role: $\{\{ secrets.ecr-iam-role \}\}
+          registry: $\{\{ secrets.registry \}\}
+          secret-outputs-passphrase: $\{\{ secrets.secret-outputs-passphrase \}\}
+
+  ```
+
+on:
+  workflow_call:
+    inputs:
+      organization:
+        description: "Repository owner organization (ex. acme for repo acme/example)"
+        required: true
+        type: string
+      repository:
+        description: "Repository name (ex. example for repo acme/example)"
+        required: true
+        type: string
+      app:
+        description: "Application name. Used with monorepo pattern when there are several applications in the repo"
+        required: false
+        type: string
+      version:
+        description: "New version tag"
+        required: true
+        type: string
+      matrix-step-name:
+        description: "Matrix step name - matrix output workaround. [Read more](https://github.com/cloudposse/github-action-matrix-outputs-write#introduction)"
+        required: false
+        type: string
+      matrix-key:
+        description: "Matrix key - matrix output workaround. [Read more](https://github.com/cloudposse/github-action-matrix-outputs-write#introduction)"
+        required: false
+        type: string
+    secrets:
+      ecr-region:
+        description: "ECR AWS region"
+        required: true
+      ecr-iam-role:
+        description: "IAM Role ARN provide ECR write/read access"
+        required: true
+      secret-outputs-passphrase:
+        description: "Passphrase to encrypt/decrypt secret outputs with gpg. For more information [read](https://github.com/cloudposse/github-action-secret-outputs)"
+        required: true
+      registry:
+        description: "ECR Docker registry"
+        required: true
+    outputs:
+      image:
+        description: "Docker Image"
+        value: ${{ jobs.promote.outputs.image }}
+      tag:
+        description: "Docker image tag"
+        value: ${{ jobs.promote.outputs.tag }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2.2.0
+        with:
+          aws-region: ${{ secrets.ecr-region }}
+          role-to-assume: ${{ secrets.ecr-iam-role }}
+
+      - name: Context
+        id: context
+        uses: cloudposse/github-action-yaml-config-query@0.1.3
+        with:
+          query: .${{ inputs.app == '' }}
+          config: |
+            true:
+              image: ${{ inputs.repository }}         
+            false:
+              image: ${{ inputs.repository }}/${{ inputs.app }}
+
+      - uses: cloudposse/github-action-docker-promote@0.1.1
+        id: promote
+        with:
+          registry: ${{ secrets.registry }}
+          organization: ${{ inputs.organization }}
+          repository: ${{ steps.context.outputs.image }}
+          from: sha-${{ github.sha }}
+          to: ${{ inputs.version }}
+          use_metadata: false
+
+      - uses: cloudposse/github-action-secret-outputs@0.1.1
+        id: image
+        with:
+          secret: ${{ secrets.secret-outputs-passphrase }}
+          op: encode
+          in: ${{ steps.promote.outputs.image }}
+
+      - uses: cloudposse/github-action-matrix-outputs-write@0.4.2
+        id: outputs
+        with:
+          matrix-step-name: ${{ inputs.matrix-step-name }}
+          matrix-key: ${{ inputs.matrix-key }}
+          outputs: |
+            image: ${{ steps.image.outputs.out }}
+            tag: ${{ steps.promote.outputs.tag }}            
+
+    outputs:
+      image: ${{ fromJson(steps.outputs.outputs.result).image }}
+      tag: ${{ fromJson(steps.outputs.outputs.result).tag }}
