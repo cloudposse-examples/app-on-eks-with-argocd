@@ -161,7 +161,7 @@ jobs:
           implementation_repository: 'cloudposse/infra-live'
           implementation_path: '.github/environments/'
           implementation_file: 'eks-argocd.yml'
-          implementation_ref: 'DEV-1252/self-contained-workflows' # TODO revert to main
+          implementation_ref: 'main'
           implementation_github_pat: ${{ secrets.github-private-actions-pat }}
           environment: ${{ matrix.env }}
           namespace: ${{ needs.preview.outputs.namespace }}
@@ -228,7 +228,7 @@ jobs:
           implementation_repository: 'cloudposse/infra-live'
           implementation_path: '.github/environments/'
           implementation_file: 'eks-argocd.yml'
-          implementation_ref: 'DEV-1252/self-contained-workflows' # TODO revert to main
+          implementation_ref: 'main'
           implementation_github_pat: ${{ secrets.github-private-actions-pat }}
           environment: ${{ matrix.env }}
           namespace: ${{ needs.preview.outputs.namespace }}
