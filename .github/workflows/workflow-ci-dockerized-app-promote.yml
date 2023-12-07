@@ -13,7 +13,7 @@ name: |-
 
     jobs:
       ci:
-        uses: cloudposse/github-actions-workflows/.github/workflows/ci-dockerized-app-promote.yml@main
+        uses: cloudposse/github-actions-workflows/.github/workflows/workflow-ci-dockerized-app-promote.yml@main
         with:
           organization: $\{\{ github.event.repository.owner.login \}\}
           repository: $\{\{ github.event.repository.name \}\}

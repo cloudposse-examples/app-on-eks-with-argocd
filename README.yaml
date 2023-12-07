@@ -44,6 +44,9 @@ related:
 description: |-
   Example Dockerized application deployed on EKS with Helmfile.
 
+usage: |-
+  foo foo
+
 introduction: |-
   * [Docker](https://docs.docker.com/engine/reference/builder/) for developing, shipping, and running,
   * [ECR](https://aws.amazon.com/ecr/) to store the Docker images
@@ -52,5 +55,3 @@ introduction: |-
 
 # Contributors to this project
 contributors:
-  - name: "Igor Rodionov"
-    github: "goruha"

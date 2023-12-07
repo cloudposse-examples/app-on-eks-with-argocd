@@ -5,7 +5,7 @@ name: |-
   
   ### Usage 
   
-  Create in your repo  __`.github/workflows/eks-argocd-hotfix-enabled.yaml`__
+  Create in your repo  __`.github/workflows/eks-argocd-hotfix-mixin.yaml`__
   
   ```yaml
     name: Release branch

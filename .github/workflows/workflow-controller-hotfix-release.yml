@@ -12,7 +12,7 @@ name: |-
 
     jobs:
       do:
-        uses: cloudposse/github-action-workflows/.github/workflows/controller-hotfix-release.yml@main
+        uses: cloudposse/github-action-workflows/.github/workflows/workflow-controller-hotfix-release.yml@main
         with:
           ref: $\{\{ github.ref \}\}
   ```
