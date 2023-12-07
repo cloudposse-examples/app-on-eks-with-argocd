@@ -1,6 +1,6 @@
 
 <!-- markdownlint-disable -->
-# example-app-on-eks [![Latest Release](https://img.shields.io/github/release/cloudposse/example-app-on-eks.svg)](https://github.com/cloudposse/example-app-on-eks/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
+# example-app-on-eks-with-argocd [![Latest Release](https://img.shields.io/github/release/cloudposse/example-app-on-eks.svg)](https://github.com/cloudposse/example-app-on-eks/releases/latest) [![Slack Community](https://slack.cloudposse.com/badge.svg)](https://slack.cloudposse.com)
 <!-- markdownlint-restore -->
 
 [![README Header][readme_header_img]][readme_header_link]
@@ -61,7 +61,26 @@ It's 100% Open Source and licensed under the [APACHE2](LICENSE).
 
 
 
-foo foo
+The workflows included with this example are consolidated to this single repository and are intentionally not divided into [GitHub reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows). We've done this to better demo a single example and simplify development overhead. However, in practice an organization may have many application repositories that use the same workflows. In that case, we recommend moving the reusable workflows into separate repositories, where they can be shared across application repositories from a central point. In this example move all `eks-argocd-*` and all `workflow-*` workflow files to the reusable location, such as a new repository called `github-action-workflows`.
+
+```console
+.github/workflows
+├── eks-argocd-feature-branch.yml
+├── eks-argocd-hotfix-branch.yml
+├── eks-argocd-hotfix-mixin.yml
+├── eks-argocd-hotfix-release.yml
+├── eks-argocd-main-branch.yml
+├── eks-argocd-release.yml
+├── feature-branch.yml
+├── main-branch.yaml
+├── release.yaml
+├── workflow-cd-argocd.yml
+├── workflow-cd-preview-argocd.yml
+├── workflow-ci-dockerized-app-build.yml
+├── workflow-ci-dockerized-app-promote.yml
+├── workflow-controller-draft-release.yml
+└── workflow-controller-hotfix-release.yml
+```
 
 
 
@@ -80,13 +99,13 @@ Check out these related projects.
 This project is under active development, and we encourage contributions from our community. 
 Many thanks to our outstanding contributors:
 
-<a href="https://github.com/cloudposse/example-app-on-eks/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=cloudposse/example-app-on-eks&max=24" />
+<a href="https://github.com/cloudposse/example-app-on-eks-with-argocd/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=cloudposse/example-app-on-eks-with-argocd&max=24" />
 </a>
 
 ### 🐛 Bug Reports & Feature Requests
 
-Please use the [issue tracker](https://github.com/cloudposse/example-app-on-eks/issues) to report any bugs or file feature requests.
+Please use the [issue tracker](https://github.com/cloudposse/example-app-on-eks-with-argocd/issues) to report any bugs or file feature requests.
 
 ### 💻 Developing
 
@@ -173,24 +192,24 @@ Copyright © 2017-2023 [Cloud Posse, LLC](https://cpco.io/copyright)
 [![Beacon][beacon]][website]
 <!-- markdownlint-disable -->
   [logo]: https://cloudposse.com/logo-300x69.svg
-  [docs]: https://cpco.io/docs?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=docs
-  [website]: https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=website
-  [github]: https://cpco.io/github?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=github
-  [jobs]: https://cpco.io/jobs?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=jobs
-  [hire]: https://cpco.io/hire?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=hire
-  [slack]: https://cpco.io/slack?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=slack
-  [twitter]: https://cpco.io/twitter?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=twitter
-  [office_hours]: https://cloudposse.com/office-hours?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=office_hours
-  [newsletter]: https://cpco.io/newsletter?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=newsletter
-  [email]: https://cpco.io/email?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=email
-  [commercial_support]: https://cpco.io/commercial-support?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=commercial_support
-  [we_love_open_source]: https://cpco.io/we-love-open-source?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=we_love_open_source
-  [terraform_modules]: https://cpco.io/terraform-modules?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=terraform_modules
+  [docs]: https://cpco.io/docs?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=docs
+  [website]: https://cpco.io/homepage?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=website
+  [github]: https://cpco.io/github?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=github
+  [jobs]: https://cpco.io/jobs?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=jobs
+  [hire]: https://cpco.io/hire?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=hire
+  [slack]: https://cpco.io/slack?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=slack
+  [twitter]: https://cpco.io/twitter?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=twitter
+  [office_hours]: https://cloudposse.com/office-hours?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=office_hours
+  [newsletter]: https://cpco.io/newsletter?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=newsletter
+  [email]: https://cpco.io/email?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=email
+  [commercial_support]: https://cpco.io/commercial-support?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=commercial_support
+  [we_love_open_source]: https://cpco.io/we-love-open-source?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=we_love_open_source
+  [terraform_modules]: https://cpco.io/terraform-modules?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=terraform_modules
   [readme_header_img]: https://cloudposse.com/readme/header/img
-  [readme_header_link]: https://cloudposse.com/readme/header/link?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=readme_header_link
+  [readme_header_link]: https://cloudposse.com/readme/header/link?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=readme_header_link
   [readme_footer_img]: https://cloudposse.com/readme/footer/img
-  [readme_footer_link]: https://cloudposse.com/readme/footer/link?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=readme_footer_link
+  [readme_footer_link]: https://cloudposse.com/readme/footer/link?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=readme_footer_link
   [readme_commercial_support_img]: https://cloudposse.com/readme/commercial-support/img
-  [readme_commercial_support_link]: https://cloudposse.com/readme/commercial-support/link?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks&utm_content=readme_commercial_support_link
-  [beacon]: https://ga-beacon.cloudposse.com/UA-76589703-4/cloudposse/example-app-on-eks?pixel&cs=github&cm=readme&an=example-app-on-eks
+  [readme_commercial_support_link]: https://cloudposse.com/readme/commercial-support/link?utm_source=github&utm_medium=readme&utm_campaign=cloudposse/example-app-on-eks-with-argocd&utm_content=readme_commercial_support_link
+  [beacon]: https://ga-beacon.cloudposse.com/UA-76589703-4/cloudposse/example-app-on-eks-with-argocd?pixel&cs=github&cm=readme&an=example-app-on-eks-with-argocd
 <!-- markdownlint-restore -->
