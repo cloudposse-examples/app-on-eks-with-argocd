@@ -5,7 +5,7 @@
 #
 
 # Name of this project
-name: example-app-on-eks
+name: example-app-on-eks-with-argocd
 
 # Tags of this project
 tags:
@@ -24,7 +24,7 @@ tags:
 license: "APACHE2"
 
 # Canonical GitHub repo
-github_repo: cloudposse/example-app-on-eks
+github_repo: cloudposse/example-app-on-eks-with-argocd
 
 # Badges to display
 badges:
@@ -44,6 +44,28 @@ related:
 description: |-
   Example Dockerized application deployed on EKS with Helmfile.
 
+usage: |-
+  The workflows included with this example are consolidated to this single repository and are intentionally not divided into [GitHub reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows). We've done this to better demo a single example and simplify development overhead. However, in practice an organization may have many application repositories that use the same workflows. In that case, we recommend moving the reusable workflows into separate repositories, where they can be shared across application repositories from a central point. In this example move all `eks-argocd-*` and all `workflow-*` workflow files to the reusable location, such as a new repository called `github-action-workflows`.
+
+  ```console
+  .github/workflows
+  ├── eks-argocd-feature-branch.yml
+  ├── eks-argocd-hotfix-branch.yml
+  ├── eks-argocd-hotfix-mixin.yml
+  ├── eks-argocd-hotfix-release.yml
+  ├── eks-argocd-main-branch.yml
+  ├── eks-argocd-release.yml
+  ├── feature-branch.yml
+  ├── main-branch.yaml
+  ├── release.yaml
+  ├── workflow-cd-argocd.yml
+  ├── workflow-cd-preview-argocd.yml
+  ├── workflow-ci-dockerized-app-build.yml
+  ├── workflow-ci-dockerized-app-promote.yml
+  ├── workflow-controller-draft-release.yml
+  └── workflow-controller-hotfix-release.yml
+  ```
+
 introduction: |-
   * [Docker](https://docs.docker.com/engine/reference/builder/) for developing, shipping, and running,
   * [ECR](https://aws.amazon.com/ecr/) to store the Docker images
@@ -52,5 +74,3 @@ introduction: |-
 
 # Contributors to this project
 contributors:
-  - name: "Igor Rodionov"
-    github: "goruha"

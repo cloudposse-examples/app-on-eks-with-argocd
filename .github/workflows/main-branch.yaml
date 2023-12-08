@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   do:
-    uses: cloudposse/github-actions-workflows-docker-ecr-eks-helm-argocd/.github/workflows/main-branch.yml@main
+    uses: ./.github/workflows/eks-argocd-main-branch.yml
     with:
       organization: "${{ github.event.repository.owner.login }}"
       repository: "${{ github.event.repository.name }}"
