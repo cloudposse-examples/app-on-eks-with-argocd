@@ -13,7 +13,7 @@ name: |-
   
     jobs:
       cd:
-        uses: cloudposse/github-actions-workflows/.github/workflows/workflow-cd-argocd.yml@main
+        uses: ./.github/workflows/workflow-cd-argocd.yml@main
         with:
           image: registry.hub.docker.com/library/nginx
           tag: latest
