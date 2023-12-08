@@ -13,7 +13,7 @@ name: |-
 
     jobs:
       do:
-        uses:  cloudposse/github-actions-workflows/.github/workflows/workflow-controller-draft-release.yml@main
+        uses:  ./.github/workflows/workflow-controller-draft-release.yml@main
         with:
           ref: $\{\{ github.sha \}\}
         secrets:
