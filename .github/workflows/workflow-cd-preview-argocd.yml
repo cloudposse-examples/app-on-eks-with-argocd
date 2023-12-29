@@ -92,6 +92,7 @@ on:
         description: "Wait until ArgoCD successfully apply the changes"
         default: false
       check-retry-interval:
+        type: string
         description: 'Check retry interval (in seconds) (for synchronously mode)'
         required: false
         default: "30"
