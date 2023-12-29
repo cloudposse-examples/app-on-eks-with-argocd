@@ -91,6 +91,10 @@ on:
         type: boolean
         description: "Wait until ArgoCD successfully apply the changes"
         default: false
+      check-retry-interval:
+        description: 'Check retry interval (in seconds) (for synchronously mode)'
+        required: false
+        default: "30"
     secrets:
       secret-outputs-passphrase:
         description: "Passphrase to encrypt/decrypt secret outputs with gpg. For more information [read](https://github.com/cloudposse/github-action-secret-outputs)"
@@ -195,6 +199,7 @@ jobs:
           github-pat: ${{ secrets.github-private-actions-pat }}
           repository: ${{ inputs.organization }}/${{ inputs.repository }}
           ref: ${{ github.sha }}
+          check-retry-interval: ${{ inputs.check-retry-interval }}
 
   destroy:
     runs-on: ubuntu-latest
