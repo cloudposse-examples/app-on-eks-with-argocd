@@ -91,6 +91,11 @@ on:
         type: boolean
         description: "Wait until ArgoCD successfully apply the changes"
         default: false
+      check-retry-count:
+        type: string
+        description: 'Check retry count (for synchronously mode)'
+        required: false
+        default: "10"
       check-retry-interval:
         type: string
         description: 'Check retry interval (in seconds) (for synchronously mode)'
@@ -180,12 +185,13 @@ jobs:
           role-skip-session-tagging: true
 
       - name: Deploy
-        #uses: cloudposse/github-action-deploy-argocd@0.5.0
-        uses: cloudposse/github-action-deploy-argocd@DEV-1396/deprecation-warnings
+        uses: cloudposse/github-action-deploy-argocd@0.8.0
         id: deploy
         with:
           toolchain: ${{ inputs.toolchain }}
           synchronously: ${{ inputs.synchronously }}
+          check-retry-count: ${{ inputs.check-retry-count }}
+          check-retry-interval: ${{ inputs.check-retry-interval }}
           path: ${{ inputs.path }}
           values_file: ${{ format(inputs.values_file, steps.environment.outputs.name) }}
           application: ${{ inputs.repository }}
@@ -200,7 +206,6 @@ jobs:
           github-pat: ${{ secrets.github-private-actions-pat }}
           repository: ${{ inputs.organization }}/${{ inputs.repository }}
           ref: ${{ github.sha }}
-          check-retry-interval: ${{ inputs.check-retry-interval }}
 
   destroy:
     runs-on: ubuntu-latest
@@ -250,8 +255,7 @@ jobs:
           role-skip-session-tagging: true
 
       - name: Destroy
-        #uses: cloudposse/github-action-deploy-argocd@0.5.0
-        uses: cloudposse/github-action-deploy-argocd@DEV-1396/deprecation-warnings
+        uses: cloudposse/github-action-deploy-argocd@0.8.0
         if: ${{ steps.deployment.outputs.id != '' }}
         id: deploy
         with:
