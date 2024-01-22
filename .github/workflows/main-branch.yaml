@@ -1,7 +1,9 @@
 name: Main Branch
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - master
+      - main
 
 permissions:
   contents: write

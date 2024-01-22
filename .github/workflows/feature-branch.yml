@@ -1,7 +1,9 @@
 name: Feature Branch
 on:
   pull_request:
-    branches: [ 'master' ]
+    branches: 
+      - master
+      - main
     types: [opened, synchronize, reopened, closed, labeled, unlabeled]
 
 permissions:
