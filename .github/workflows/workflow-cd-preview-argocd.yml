@@ -255,7 +255,8 @@ jobs:
           role-skip-session-tagging: true
 
       - name: Destroy
-        uses: cloudposse/github-action-deploy-argocd@0.8.1
+        #uses: cloudposse/github-action-deploy-argocd@0.8.1
+        uses: cloudposse/github-action-deploy-argocd@multi-org
         if: ${{ steps.deployment.outputs.id != '' }}
         id: deploy
         with:
@@ -272,7 +273,8 @@ jobs:
           image: "<none>"
           image-tag: "<none>"
           operation: destroy
-          github-pat: ${{ secrets.github-private-actions-pat }}
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
+          argocd-deploy-repo-pat: ${{ secrets.github-private-actions-pat }}
           debug: false
           repository: ${{ inputs.organization }}/${{ inputs.repository }}
           ref: ${{ github.sha }}
