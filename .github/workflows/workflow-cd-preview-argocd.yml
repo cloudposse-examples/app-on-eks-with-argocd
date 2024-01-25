@@ -186,7 +186,7 @@ jobs:
 
       - name: Deploy
         #uses: cloudposse/github-action-deploy-argocd@0.8.1
-        uses: cloudposse/github-action-deploy-argocd@multi-org
+        uses: cloudposse/github-action-deploy-argocd@sync-target-repo
         id: deploy
         with:
           toolchain: ${{ inputs.toolchain }}
@@ -204,8 +204,7 @@ jobs:
           image: ${{ steps.image.outputs.out }}
           image-tag: ${{ inputs.tag }}
           operation: deploy
-          github-pat: ${{ secrets.github_token }}
-          argocd-deploy-repo-pat: ${{ secrets.github-private-actions-pat }}
+          github-pat: ${{ secrets.github-private-actions-pat }}
           repository: ${{ inputs.organization }}/${{ inputs.repository }}
           ref: ${{ github.sha }}
 
