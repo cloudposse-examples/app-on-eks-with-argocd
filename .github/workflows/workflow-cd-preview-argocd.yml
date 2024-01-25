@@ -185,7 +185,8 @@ jobs:
           role-skip-session-tagging: true
 
       - name: Deploy
-        uses: cloudposse/github-action-deploy-argocd@0.8.1
+        #uses: cloudposse/github-action-deploy-argocd@0.8.1
+        uses: cloudposse/github-action-deploy-argocd@multi-org
         id: deploy
         with:
           toolchain: ${{ inputs.toolchain }}
@@ -203,7 +204,8 @@ jobs:
           image: ${{ steps.image.outputs.out }}
           image-tag: ${{ inputs.tag }}
           operation: deploy
-          github-pat: ${{ secrets.github-private-actions-pat }}
+          github-pat: ${{ secrets.github_token }}
+          argocd-deploy-repo-pat: ${{ secrets.github-private-actions-pat }}
           repository: ${{ inputs.organization }}/${{ inputs.repository }}
           ref: ${{ github.sha }}
 
@@ -255,8 +257,7 @@ jobs:
           role-skip-session-tagging: true
 
       - name: Destroy
-        #uses: cloudposse/github-action-deploy-argocd@0.8.1
-        uses: cloudposse/github-action-deploy-argocd@multi-org
+        uses: cloudposse/github-action-deploy-argocd@0.8.1
         if: ${{ steps.deployment.outputs.id != '' }}
         id: deploy
         with:
@@ -273,8 +274,7 @@ jobs:
           image: "<none>"
           image-tag: "<none>"
           operation: destroy
-          github-pat: ${{ secrets.GITHUB_TOKEN }}
-          argocd-deploy-repo-pat: ${{ secrets.github-private-actions-pat }}
+          github-pat: ${{ secrets.github-private-actions-pat }}
           debug: false
           repository: ${{ inputs.organization }}/${{ inputs.repository }}
           ref: ${{ github.sha }}
