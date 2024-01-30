@@ -22,7 +22,6 @@ jobs:
       open: ${{ github.event.pull_request.state == 'open' }}
       labels: ${{ toJSON(github.event.pull_request.labels.*.name) }}
       ref: ${{ github.event.pull_request.head.ref  }}
-      synchronously: false
     secrets:
       github-private-actions-pat: "${{ secrets.ARGOCD_GITHUB_NONPROD }}"
       registry: "${{ secrets.ECR_REGISTRY }}"
