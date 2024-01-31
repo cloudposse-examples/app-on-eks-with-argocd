@@ -24,7 +24,7 @@ name: |-
           organization: "$\{\{ github.event.repository.owner.login \}\}"
           repository: "$\{\{ github.event.repository.name \}\}"
         secrets:
-          github-private-actions-pat: "$\{\{ secrets.PUBLIC_REPO_ACCESS_TOKEN \}\}"
+          github-private-actions-pat: "$\{\{ secrets.ARGOCD_GITHUB_NONPROD \}\}"
           registry: "$\{\{ secrets.ECR_REGISTRY \}\}"
           secret-outputs-passphrase: "$\{\{ secrets.GHA_SECRET_OUTPUT_PASSPHRASE \}\}"
           ecr-region: "$\{\{ secrets.ECR_REGION \}\}"

@@ -1,7 +1,9 @@
 name: Main Branch
 on:
   push:
-    branches: [ master ]
+    branches: 
+      - master
+      - main
 
 permissions:
   contents: write
@@ -16,7 +18,7 @@ jobs:
       path: deploy
       tests_enabled: false
     secrets:
-      github-private-actions-pat: "${{ secrets.PUBLIC_REPO_ACCESS_TOKEN }}"
+      github-private-actions-pat: "${{ secrets.ARGOCD_GITHUB_NONPROD }}"
       registry: "${{ secrets.ECR_REGISTRY }}"
       secret-outputs-passphrase: "${{ secrets.GHA_SECRET_OUTPUT_PASSPHRASE }}"
       ecr-region: "${{ secrets.ECR_REGION }}"

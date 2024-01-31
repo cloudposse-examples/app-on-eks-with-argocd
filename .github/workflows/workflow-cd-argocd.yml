@@ -92,13 +92,13 @@ jobs:
           in: ${{ inputs.image }}
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Environment Info
-        uses: cloudposse/github-action-interface-environment@0.2.0
+        uses: cloudposse/github-action-interface-environment@0.3.0
         id: environment
         with:
-          implementation_repository: 'cloudposse/infra-live'
+          implementation_repository: 'cloudposse-examples/infra-config'
           implementation_path: '.github/environments/'
           implementation_file: 'eks-argocd.yml'
           implementation_ref: 'main'
@@ -108,14 +108,14 @@ jobs:
           repository: ${{ inputs.repository }}
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2.2.0
+        uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
           aws-region: ${{ steps.environment.outputs.region }}
           role-to-assume: ${{ steps.environment.outputs.role }}
           role-skip-session-tagging: true
 
       - name: Deploy
-        uses: cloudposse/github-action-deploy-argocd@0.8.0
+        uses: cloudposse/github-action-deploy-argocd@0.8.1
         id: deploy
         with:
           toolchain: ${{ inputs.toolchain }}
