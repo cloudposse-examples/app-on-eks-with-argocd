@@ -165,7 +165,8 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Environment Info
-        uses: cloudposse-examples/infra-config/.github/environments/eks-argocd@main
+        #uses: cloudposse-examples/infra-config/.github/environments/eks-argocd@main
+        uses: cloudposse-examples/infra-config@main
         id: environment
         with:
           environment: ${{ matrix.env }}
