@@ -99,7 +99,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: ./.github/workflows/workflows-ci-dockerized-app-build.yml
+    uses: ./.github/workflows/workflow-ci-dockerized-app-build.yml
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
@@ -113,13 +113,13 @@ jobs:
 
   release:
     needs: [ci]
-    uses: ./.github/workflows/workflows-controller-hotfix-release.yml
+    uses: ./.github/workflows/workflow-controller-hotfix-release.yml
     with:
       ref: ${{ github.sha }}
 
   promote:
     needs: [release]
-    uses: ./.github/workflows/workflows-ci-dockerized-app-promote.yml
+    uses: ./.github/workflows/workflow-ci-dockerized-app-promote.yml
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
@@ -132,7 +132,7 @@ jobs:
 
   cd:
     name: cd / production
-    uses: ./.github/workflows/workflows-cd-argocd.yml
+    uses: ./.github/workflows/workflow-cd-argocd.yml
     needs: [ promote ]
     with:
       image: ${{ needs.promote.outputs.image }}
@@ -149,7 +149,7 @@ jobs:
       github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
 
   reintegrate:
-    uses: ./.github/workflows/workflows-controller-hotfix-reintegrate.yml
+    uses: ./.github/workflows/workflow-controller-hotfix-reintegrate.yml
     needs: [ cd ]
     with:
       ref: ${{ github.ref }}

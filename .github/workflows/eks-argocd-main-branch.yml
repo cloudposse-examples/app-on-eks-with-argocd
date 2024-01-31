@@ -94,7 +94,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: ./.github/workflows/workflows-ci-dockerized-app-build.yml
+    uses: ./.github/workflows/workflow-ci-dockerized-app-build.yml
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
@@ -107,7 +107,7 @@ jobs:
       secret-outputs-passphrase: ${{ secrets.secret-outputs-passphrase }}
 
   cd:
-    uses: ./.github/workflows/workflows-cd-argocd.yml
+    uses: ./.github/workflows/workflow-cd-argocd.yml
     needs: [ ci ]
     with:
       image: ${{ needs.ci.outputs.image }}
@@ -124,7 +124,7 @@ jobs:
       github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
 
   release:
-    uses:  ./.github/workflows/workflows-controller-draft-release.yml
+    uses:  ./.github/workflows/workflow-controller-draft-release.yml
     needs: [ cd ]
     secrets:
       github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
