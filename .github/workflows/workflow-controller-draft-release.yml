@@ -16,8 +16,6 @@ name: |-
         uses:  ./.github/workflows/workflow-controller-draft-release.yml@main
         with:
           ref: $\{\{ github.sha \}\}
-        secrets:
-          github-private-actions-pat: $\{\{ secrets.github-private-actions-pat \}\}
 
   ```
 
@@ -30,10 +28,6 @@ on:
         default: ${{ github.sha }}
         type: string
 
-    secrets:
-      github-private-actions-pat:
-        description: "Github PAT allow to create release"
-        required: true
 jobs:
   draft:
     runs-on: ubuntu-latest
@@ -46,5 +40,3 @@ jobs:
           prerelease: false
           config-name: configs/draft-release.yml
           commitish: ${{ inputs.ref }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.github-private-actions-pat }}
