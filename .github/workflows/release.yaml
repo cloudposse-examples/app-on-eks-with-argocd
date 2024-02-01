@@ -16,7 +16,7 @@ jobs:
       path: deploy
       version: ${{ github.event.release.tag_name }}
     secrets:
-      github-private-actions-nonprod-pat: "${{ secrets.ARGOCD_GITHUB_PROD }}"
+      github-private-actions-nonprod-pat: "${{ secrets.ARGOCD_GITHUB_NONPROD }}"
       github-private-actions-prod-pat: "${{ secrets.ARGOCD_GITHUB_PROD }}"
       registry: "${{ secrets.ECR_REGISTRY }}"
       secret-outputs-passphrase: "${{ secrets.GHA_SECRET_OUTPUT_PASSPHRASE }}"
