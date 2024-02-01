@@ -1,44 +1,23 @@
-### TP Card:
-* [TP-ID_Number](TP_URL)
+## what
 
-### Why?:
-*
+<!--
+- Describe high-level what changed as a result of these commits (i.e. in plain-english, what do these changes mean?)
+- Use bullet points to be concise and to the point.
+-->
 
-### What's Done:
-*
+## why
 
-### Does this PR include specs for any new or modified code?
+<!--
+- Provide the justifications for the changes (e.g. business case).
+- Describe why these changes were made (e.g. why do these commits fix the problem?)
+- Use bullet points to be concise and to the point.
+-->
 
-1. [ ] :white_check_mark:
-2. [ ] :question:  Not sure?  Please reach out to another developer for assistance
-3. [ ] :x:  **REQUIRED:  please provide an explanation describing why this PR is missing specs**
-  - Explanation:
+## references
 
-### Are there any security considerations for this PR?
+<!--
+- Link to any supporting github issues or helpful documentation to add some context (e.g. stackoverflow).
+- Use `closes #123`, if this PR closes a GitHub issue `#123`
+- Use `closes JIRA-123`, if this PR closes a Jira Issue `JIRA-123` where `JIRA` is the project abbreviation. 
+-->
 
-1. [ ] :white_check_mark:
-2. [ ] :x:
-- Please elaborate as needed:
-
-### Does this PR ensure?
-
-- [ ] No business logic in view (.erb files)
-- [ ] Object level assumption is verified (e.g. handle null object appropriately)
-* Note - Dev to confirm the above during PR creation.
-
-### Was the code you're committing subject to a design review?
-
-- [ ] Yes
-- [ ] No, but I'm **certain** the change is isolated and will not negatively impact other features or performance generally
-- [ ] No, and I'm not sure what impact my change will have on other features and performance generally
-
-
-### Browser Tested:
-
-- [ ] Chrome
-- [ ] Others
-- [ ] N/A
-
-### Screenshot or GIF:
-
-**Mandatory** — You need to attach a screenshot/screen-cast if you made any changes to the UI
