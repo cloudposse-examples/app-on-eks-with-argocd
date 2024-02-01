@@ -40,3 +40,5 @@ jobs:
           prerelease: false
           config-name: configs/draft-release.yml
           commitish: ${{ inputs.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
