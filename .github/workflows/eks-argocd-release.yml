@@ -25,7 +25,8 @@ name: |-
           repository: "$\{\{ github.event.repository.name \}\}"
           version: $\{\{ github.event.release.tag_name \}\}
         secrets:
-          github-private-actions-pat: "$\{\{ secrets.ARGOCD_GITHUB_NONPROD \}\}"
+          github-private-actions-nonprod-pat: "$\{\{ secrets.ARGOCD_GITHUB_NONPROD \}\}"
+          github-private-actions-prod-pat: "$\{\{ secrets.ARGOCD_GITHUB_PROD \}\}"
           registry: "$\{\{ secrets.ECR_REGISTRY \}\}"
           secret-outputs-passphrase: "$\{\{ secrets.GHA_SECRET_OUTPUT_PASSPHRASE \}\}"
           ecr-region: "$\{\{ secrets.ECR_REGION \}\}"
@@ -80,8 +81,11 @@ on:
       registry:
         description: "ECR ARN"
         required: true
-      github-private-actions-pat:
-        description: "Github PAT allow to pull private repos"
+      github-private-actions-nonprod-pat:
+        description: "Github PAT allow access to nonprod private repos"
+        required: true
+      github-private-actions-prod-pat:
+        description: "Github PAT allow access to prod private repos"
         required: true
       ecr-region:
         description: "ECR AWS region"
@@ -127,7 +131,7 @@ jobs:
       synchronously: ${{ inputs.synchronously }}
     secrets:
       secret-outputs-passphrase: ${{ secrets.secret-outputs-passphrase }}
-      github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
+      github-private-actions-pat: ${{ secrets.github-private-actions-nonprod-pat }}
 
   cd-production:
     name: cd / production
@@ -145,4 +149,4 @@ jobs:
       synchronously: ${{ inputs.synchronously }}
     secrets:
       secret-outputs-passphrase: ${{ secrets.secret-outputs-passphrase }}
-      github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
+      github-private-actions-pat: ${{ secrets.github-private-actions-prod-pat }}
