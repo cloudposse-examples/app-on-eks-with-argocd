@@ -100,7 +100,7 @@ concurrency:
 
 jobs:
   ci:
-    uses: ./.github/workflows/workflows-ci-dockerized-app-promote.yml
+    uses: ./.github/workflows/workflow-ci-dockerized-app-promote.yml
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
@@ -113,7 +113,7 @@ jobs:
 
   cd-staging:
     name: cd / staging
-    uses: ./.github/workflows/workflows-cd-argocd.yml
+    uses: ./.github/workflows/workflow-cd-argocd.yml
     needs: [ ci ]
     with:
       image: ${{ needs.ci.outputs.image }}
@@ -131,7 +131,7 @@ jobs:
 
   cd-production:
     name: cd / production
-    uses: ./.github/workflows/workflows-cd-argocd.yml
+    uses: ./.github/workflows/workflow-cd-argocd.yml
     needs: [ ci, cd-staging ]
     with:
       image: ${{ needs.ci.outputs.image }}
