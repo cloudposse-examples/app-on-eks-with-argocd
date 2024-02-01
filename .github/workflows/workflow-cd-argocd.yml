@@ -51,6 +51,16 @@ on:
         type: boolean
         description: "Wait until ArgoCD successfully apply the changes"
         default: false
+      check-retry-count:
+        type: string
+        description: 'Check retry count (for synchronously mode)'
+        required: false
+        default: "10"
+      check-retry-interval:
+        type: string
+        description: 'Check retry interval (in seconds) (for synchronously mode)'
+        required: false
+        default: "30"
       toolchain:
         description: "Toolchain ('helm', 'helmfile')"
         required: false
@@ -134,3 +144,5 @@ jobs:
           repository: ${{ inputs.organization }}/${{ inputs.repository }}
           ref: ${{ github.sha }}
           synchronously: ${{ inputs.synchronously }}
+          check-retry-count: ${{ inputs.check-retry-count }}
+          check-retry-interval: ${{ inputs.check-retry-interval }}
