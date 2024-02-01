@@ -126,5 +126,3 @@ jobs:
   release:
     uses:  ./.github/workflows/workflow-controller-draft-release.yml
     needs: [ cd ]
-    secrets:
-      github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
