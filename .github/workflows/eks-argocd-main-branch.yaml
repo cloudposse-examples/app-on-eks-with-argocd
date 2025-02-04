@@ -19,7 +19,7 @@ name: |-
     
     jobs:
       do:
-        uses: ./.github/workflows/eks-argocd-main-branch.yml
+        uses: ./.github/workflows/eks-argocd-main-branch.yaml
         with:
           organization: "$\{\{ github.event.repository.owner.login \}\}"
           repository: "$\{\{ github.event.repository.name \}\}"
