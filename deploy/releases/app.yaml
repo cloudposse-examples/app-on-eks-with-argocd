@@ -2,10 +2,12 @@ environments:
   default:
     values:
       - platform:
-          region: us-east-2
-          default_ingress_domain: example.com
+          region: us-east-1
+          default_ingress_domain: demo-eks-app.dev.plat.innovus-aws.net
           default_alb_ingress_group: default
   preview:
+  dev:
+  sandbox:
   staging:
   production:
 
@@ -20,7 +22,7 @@ releases:
 # References:
 #   - https://github.com/cloudposse/charts/blob/master/incubator/monochart
 #
-- name: 'example-app'
+- name: 'eks-inno-demo'
   labels:
     preview: "true"
   chart: "cloudposse-incubator/monochart"
