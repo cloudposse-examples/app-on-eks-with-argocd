@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   do:
-    uses: ./.github/workflows/eks-argocd-feature-branch.yml
+    uses: ./.github/workflows/eks-argocd-feature-branch.yaml
     with:
       organization: "${{ github.event.repository.owner.login }}"
       repository: "${{ github.event.repository.name }}"
