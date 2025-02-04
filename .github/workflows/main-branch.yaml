@@ -16,7 +16,7 @@ jobs:
       organization: "${{ github.event.repository.owner.login }}"
       repository: "${{ github.event.repository.name }}"
       path: deploy
-      tests_enabled: false
+      tests_enabled: true
     secrets:
       github-private-actions-pat: "${{ secrets.ARGOCD_GITHUB_NONPROD }}"
       registry: "${{ secrets.ECR_REGISTRY }}"
