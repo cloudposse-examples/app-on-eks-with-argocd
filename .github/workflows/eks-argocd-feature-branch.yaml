@@ -53,7 +53,8 @@ on:
       ref:
         description: "The fully-formed ref of the branch or tag that triggered the workflow run"
         required: false
-        default: ${{ github.event.pull_request.head.ref }}
+        default: "1.0.0" 
+        # ${{ github.event.pull_request.head.ref }}
         type: string
       open:
         description: "Pull Request open/close state. Set true if opened"
