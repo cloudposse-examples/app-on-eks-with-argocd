@@ -67,19 +67,20 @@ releases:
             external-dns.alpha.kubernetes.io/target: {{ .Values.platform.default_ingress_domain }}
             alb.ingress.kubernetes.io/group.name: {{ .Values.platform.default_alb_ingress_group }}
             kubernetes.io/ingress.class: alb
-            alb.ingress.kubernetes.io/scheme: internet-facing
+            alb.ingress.kubernetes.io/scheme: internal
             alb.ingress.kubernetes.io/actions.ssl-redirect: '{"RedirectConfig":{"Port":"443","Protocol":"HTTPS","StatusCode":"HTTP_301"},"Type":"redirect"}'
             alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
             alb.ingress.kubernetes.io/ssl-redirect: "443"
             alb.ingress.kubernetes.io/target-type: ip
+            cert-manager.io/cluster-issuer: selfsigning-issuer
         {{- if eq .Environment.Name "preview" }}
-            external-dns.alpha.kubernetes.io/hostname: example-app-on-argo-{{ .Namespace }}.{{ .Values.platform.default_ingress_domain }}
-            outputs.platform.cloudposse.com/webapp-url: "https://example-app-on-argo-{{ .Namespace }}.{{ .Values.platform.default_ingress_domain }}/dashboard"
+            external-dns.alpha.kubernetes.io/hostname: demo-{{ .Namespace }}.{{ .Values.platform.default_ingress_domain }}
+            outputs.platform.cloudposse.com/webapp-url: "https://demo-{{ .Namespace }}.{{ .Values.platform.default_ingress_domain }}/dashboard"
           hosts:
             "example-app-on-argo-{{ .Namespace }}.{{ .Values.platform.default_ingress_domain }}": /*
         {{- else }}
-            external-dns.alpha.kubernetes.io/hostname: example-app-on-argo.{{ .Values.platform.default_ingress_domain }}
-            outputs.platform.cloudposse.com/webapp-url: "https://example-app-on-argo.{{ .Values.platform.default_ingress_domain }}/dashboard"
+            external-dns.alpha.kubernetes.io/hostname: demo.{{ .Values.platform.default_ingress_domain }}
+            outputs.platform.cloudposse.com/webapp-url: "https://demo.{{ .Values.platform.default_ingress_domain }}/dashboard"
           hosts:
             "example-app-on-argo.{{ .Values.platform.default_ingress_domain }}": /*
         {{- end }}
