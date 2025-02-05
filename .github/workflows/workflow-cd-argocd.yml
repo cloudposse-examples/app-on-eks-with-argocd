@@ -111,7 +111,7 @@ jobs:
           implementation_repository: 'innovus-internal/argocd-deploy-non-prod'
           implementation_path: '.github/environments/'
           implementation_file: 'eks-argocd.yml'
-          implementation_ref: 'main'
+          implementation_ref: 'feature/argo-environments'
           implementation_github_pat: ${{ secrets.github-private-actions-pat }}
           environment: ${{ inputs.environment }}
           namespace: ${{ inputs.environment }}
