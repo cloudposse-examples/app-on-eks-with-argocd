@@ -171,7 +171,7 @@ jobs:
           implementation_repository: 'innovus-internal/infrastructure'
           implementation_path: '.github/environments/'
           implementation_file: 'eks-argocd.yaml'
-          implementation_ref: 'main'
+          implementation_ref: 'feature/argo-environments'
           implementation_github_pat: ${{ secrets.github-private-actions-pat }}
           environment: ${{ matrix.env }}
           namespace: ${{ needs.preview.outputs.namespace }}

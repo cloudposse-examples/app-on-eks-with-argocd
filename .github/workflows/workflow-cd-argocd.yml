@@ -108,9 +108,9 @@ jobs:
         uses: cloudposse/github-action-interface-environment@0.3.0
         id: environment
         with:
-          implementation_repository: 'innovus-internal/argocd-deploy-non-prod'
+          implementation_repository: 'innovus-internal/infrastructure'
           implementation_path: '.github/environments/'
-          implementation_file: 'eks-argocd.yml'
+          implementation_file: 'eks-argocd.yaml'
           implementation_ref: 'feature/argo-environments'
           implementation_github_pat: ${{ secrets.github-private-actions-pat }}
           environment: ${{ inputs.environment }}
