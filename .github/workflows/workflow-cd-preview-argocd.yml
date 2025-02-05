@@ -245,6 +245,7 @@ jobs:
           environment: ${{ matrix.env }}
           namespace: ${{ needs.preview.outputs.namespace }}
           repository: ${{ inputs.repository }}
+          source-pattern: "configs/**"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.1
