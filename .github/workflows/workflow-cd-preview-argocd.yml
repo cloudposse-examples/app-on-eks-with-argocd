@@ -120,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Preview deployments controller
-        uses: cloudposse/github-action-preview-environment-controller@0.9.0
+        uses: cloudposse/github-action-preview-environment-controller@v0.11.1
         id: controller
         with:
           labels: ${{ inputs.labels }}
@@ -245,7 +245,6 @@ jobs:
           environment: ${{ matrix.env }}
           namespace: ${{ needs.preview.outputs.namespace }}
           repository: ${{ inputs.repository }}
-          source-pattern: "configs/**"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.1
