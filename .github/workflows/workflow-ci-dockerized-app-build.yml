@@ -1,8 +1,8 @@
 name: |-
   CI - Build Docker image
-  
+
   Build Docker image and push it to ECR
-  
+
   ### Usage 
 
   ```yaml
@@ -72,6 +72,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # https://github.com/orgs/community/discussions/27086#discussioncomment-3254548
+      - name: set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: "${{ github.repository_owner }}"
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
@@ -82,11 +89,11 @@ jobs:
         id: build
         uses: cloudposse/github-action-docker-build-push@1.14.0
         with:
-          organization: ${{ inputs.organization }}
+          organization: ${{ env.OWNER_LC }}
           repository: ${{ inputs.repository }}
           registry: ${{ secrets.registry }}
-          cache-from: "type=registry,ref=${{ secrets.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:cache"
-          cache-to: "mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ secrets.registry }}/${{ inputs.organization }}/${{ inputs.repository }}:cache"
+          cache-from: "type=registry,ref=${{ secrets.registry }}/${{ env.OWNER_LC }}/${{ inputs.repository }}:cache"
+          cache-to: "mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ secrets.registry }}/${{ env.OWNER_LC }}/${{ inputs.repository }}:cache"
 
       - uses: cloudposse/github-action-secret-outputs@0.1.1
         id: image
@@ -102,7 +109,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     if: ${{ inputs.tests_enabled }}
-    needs: [ build ]
+    needs: [build]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -121,4 +128,3 @@ jobs:
           service: app
           command: test/test.sh
           registry: ${{ secrets.registry }}
-
