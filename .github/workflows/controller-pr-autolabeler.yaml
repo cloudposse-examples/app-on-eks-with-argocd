@@ -1,0 +1,29 @@
+name: Controller - PR Autolabeler
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: "Overrides job runs-on setting (json-encoded list)"
+        type: string
+        required: false
+        default: '["ubuntu-latest"]'
+      config-path:
+        description: "Path to the release-drafter config file (relative to .github/)"
+        type: string
+        required: false
+        default: "configs/release-drafter.yml"
+
+jobs:
+  release-drafter:
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    steps:
+      - name: Auto-add labels
+        uses: release-drafter/release-drafter@v6
+        with:
+          config-name: ${{ inputs.config-path }}
+          # we only want to use autolabeler:
+          disable-autolabeler: false
+          disable-releaser: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

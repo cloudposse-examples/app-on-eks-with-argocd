@@ -1,0 +1,19 @@
+name: Release Comment on PR
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  deployments: write
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-commenter:
+    runs-on: ["self-hosted", "default"]
+    steps:
+      - uses: cloudposse-github-actions/pr-comment-on-release@v0.2.0
+        with:
+          include_regex: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"

@@ -1,0 +1,115 @@
+name: CI - Build Docker image (ECR)
+
+on:
+  workflow_call:
+    inputs:
+      organization:
+        description: "Repository owner organization (ex. acme for repo acme/example)"
+        required: true
+        type: string
+      repository:
+        description: "Repository name (ex. example for repo acme/example)"
+        required: true
+        type: string
+      tests_enabled:
+        description: "Enable CI Test Stage"
+        type: boolean
+        default: true
+        required: false
+      runs-on:
+        description: "Overrides job runs-on setting (json-encoded list)"
+        type: string
+        required: false
+        default: '["ubuntu-latest"]'
+      ecr-region:
+        type: string
+        description: "ECR AWS region. Required if `registry` points to ECR."
+        required: false
+        default: ""
+      ecr-iam-role:
+        type: string
+        description: "IAM Role ARN provide ECR write/read access. Required if `registry` points to ECR."
+        required: false
+        default: ""
+      registry:
+        type: string
+        description: "OCI registry for helm charts (also applies to ECR if `ecr-region` and `ecr-iam-role` are supplied."
+        required: true
+      workdir:
+        type: string
+        description: "Working directory for the application"
+        required: false
+        default: "./"
+    outputs:
+      image:
+        description: "Docker Image"
+        value: ${{ jobs.build.outputs.image }}
+      tag:
+        description: "Docker image tag"
+        value: ${{ jobs.build.outputs.tag }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    name: build
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: ${{ inputs.ecr-region }}
+          role-to-assume: ${{ inputs.ecr-iam-role }}
+
+      # https://github.com/orgs/community/discussions/27086#discussioncomment-3254548
+      - name: set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: ${{ inputs.organization }}
+
+      - name: Build
+        id: build
+        uses: cloudposse/github-action-docker-build-push@v1.17.0
+        with:
+          organization: ${{ env.OWNER_LC }}
+          repository: ${{ inputs.repository }}
+          registry: ${{ inputs.registry }}
+          # Enable remote caching in ECR for faster builds
+          cache-from: "type=registry,ref=${{ inputs.registry }}/${{ env.OWNER_LC }}/${{ inputs.repository }}:cache"
+          cache-to: "mode=max,image-manifest=true,oci-mediatypes=true,type=registry,ref=${{ inputs.registry }}/${{ env.OWNER_LC }}/${{ inputs.repository }}:cache"
+          # Support working directory for monorepo support
+          workdir: ${{ inputs.workdir }}
+
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+      tag: ${{ steps.build.outputs.tag }}
+
+  test:
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    if: ${{ inputs.tests_enabled }}
+    needs: [build]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: ${{ inputs.ecr-region }}
+          role-to-assume: ${{ inputs.ecr-iam-role }}
+
+      - name: Tests
+        id: test
+        uses: cloudposse/github-action-docker-compose-test-run@0.2.0
+        with:
+          file: test/docker-compose.yml
+          service: app
+          command: test/test.sh
+          registry: ${{ inputs.registry }}
+          workdir: ${{ inputs.workdir }}

@@ -1,0 +1,227 @@
+name: CD — Preview Environment Cleanup via Argo CD
+
+on:
+  workflow_call:
+    inputs:
+      application:
+        description: "Name of the application to deploy"
+        required: true
+        type: string
+      toolchain:
+        description: "Toolchain ('helm', 'helmfile')"
+        required: false
+        default: "helm"
+        type: string
+      path:
+        description: "The path where lives the helmfile or helm chart."
+        required: true
+        type: string
+      values_file:
+        type: string
+        description: Helmfile values file, or helm chart values file
+        default: ""
+        required: false
+      synchronously:
+        type: boolean
+        description: "Wait until ArgoCD successfully apply the changes"
+        default: false
+      check-retry-count:
+        type: string
+        description: "Check retry count (for synchronously mode)"
+        required: false
+        default: "10"
+      check-retry-interval:
+        type: string
+        description: "Check retry interval (in seconds) (for synchronously mode)"
+        required: false
+        default: "30"
+      commit-retry-count:
+        type: string
+        description: "Commit retry count"
+        required: false
+        default: "4"
+      commit-retry-interval:
+        type: string
+        description: "Commit retry interval (in seconds)"
+        required: false
+        default: "10"
+      commit-timeout:
+        type: string
+        description: "Commit timeout (in seconds)"
+        required: false
+        default: "60"
+      runs-on:
+        description: "The runner labels on which jobs should run on"
+        required: false
+        type: string
+        default: '["self-hosted", "default"]'
+      organization:
+        description: "Repository owner organization (ex. acme for repo acme/example)"
+        required: true
+        type: string
+      repository:
+        description: "Repository name (ex. example for repo acme/example)"
+        required: true
+        type: string
+      ref:
+        description: "The fully-formed ref of the branch or tag that triggered the workflow run"
+        required: true
+        type: string
+      open:
+        description: "Pull Request open/close state. Set true if opened"
+        required: false
+        type: boolean
+        default: false
+      environment:
+        description: "The environment name"
+        required: true
+        type: string
+      namespace:
+        description: "The namespace name"
+        required: true
+        type: string
+      ecr-region:
+        description: "The ECR region"
+        required: false
+        type: string
+        default: ""
+      ecr-iam-role:
+        description: "The ECR IAM role"
+        required: false
+        type: string
+        default: ""
+      labels_env:
+        description: "JSON-encoded mapping of environment names to labels"
+        required: false
+        type: string
+        default: "{}"
+
+jobs:
+  environment:
+    uses: ./.github/workflows/controller-environment-interface.yaml
+    with:
+      environment: ${{ inputs.environment }}
+      namespace: ${{ inputs.namespace }}
+      runs-on: ${{ inputs.runs-on }}
+
+  destroy:
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    needs: environment
+    environment:
+      name: ${{ needs.environment.outputs.environment }}
+    env:
+      ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
+      ARTIFACTORY_PASS: ${{ secrets.ARTIFACTORY_PASS }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            deploy/
+
+      - name: Seek deployment
+        uses: cloudposse/github-action-seek-deployment@0.1.1
+        id: deployment
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          environment: ${{ inputs.environment }}
+          ref: ${{ inputs.ref }}
+          status: success
+
+      - name: Configure AWS Credentials
+        if: ${{ steps.deployment.outputs.id != '' }}
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: ${{ needs.environment.outputs.cluster_region }}
+          role-to-assume: ${{ needs.environment.outputs.cluster_role }}
+          role-skip-session-tagging: true
+
+      # Credentials to Artifacts account
+      - name: Configure AWS Credentials for ECR
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        if: ${{ inputs.ecr-region != '' && inputs.ecr-iam-role != '' }}
+        with:
+          aws-region: ${{ inputs.ecr-region }}
+          role-to-assume: ${{ inputs.ecr-iam-role }}
+
+      - uses: azure/setup-helm@v4.2.0
+
+      # Login to ECR
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+        if: ${{ inputs.ecr-region != '' && inputs.ecr-iam-role != '' }}
+
+      # Fetch chart from OCI repository
+      - name: Fetch Chart
+        if: ${{ inputs.toolchain == 'helm' && contains(inputs.path, 'oci://') }}
+        run: |
+          helm pull ${{ inputs.path }} --untar --untardir /tmp/chart
+
+      - name: Determine Chart name from OCI path
+        if: ${{ inputs.toolchain == 'helm' && contains(inputs.path, 'oci://') }}
+        id: chart-name
+        env:
+          CHART_PATH: ${{ inputs.path }}
+        run: |
+          echo "CHART=$(echo ${CHART_PATH##*/})" >> $GITHUB_ENV
+
+      - name: Helm Build
+        if: ${{ inputs.toolchain == 'helm' }}
+        run: |
+          helm dependency build ${{ contains(inputs.path, 'oci://') && format('/tmp/chart/{0}', env.CHART ) || inputs.path }}
+
+      - name: Generate GitHub App Token
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.ARGO_CD_DEPLOY_NONPROD_APP_ID }}
+          private-key: ${{ secrets.ARGO_CD_DEPLOY_NONPROD_APP_PRIVATE_KEY }} # scoped to the given environment
+          # The owner and repository must match the desired state repo
+          owner: ${{ github.repository_owner }} # redundant but added for clarity
+          repositories: |
+            argocd-deploy-non-prod
+
+      - name: Destroy
+        uses: cloudposse/github-action-deploy-argocd@v0.13.0
+        if: ${{ steps.deployment.outputs.id != '' }}
+        id: deploy
+        with:
+          toolchain: ${{ inputs.toolchain }}
+          synchronously: ${{ inputs.synchronously }}
+          check-retry-count: ${{ inputs.check-retry-count }}
+          check-retry-interval: ${{ inputs.check-retry-interval }}
+          commit-retry-count: ${{ inputs.commit-retry-count }}
+          commit-retry-interval: ${{ inputs.commit-retry-interval }}
+          commit-timeout: ${{ inputs.commit-timeout }}
+          path: ${{ (contains(inputs.path, 'oci://') && format('/tmp/chart/{0}', env.CHART )) || inputs.path }}
+          application: ${{ inputs.application }}
+          values_file: ${{ format(inputs.values_file, inputs.environment) }}
+          ssm-path: ${{ needs.environment.outputs.cluster_ssm_path }}
+          aws-region: ${{ needs.environment.outputs.cluster_region }}
+          cluster: ${{ needs.environment.outputs.cluster }}
+          environment: ${{ inputs.environment }}
+          namespace: ${{ needs.environment.outputs.namespace }}
+          image: "<none>"
+          image-tag: "<none>"
+          operation: destroy
+          github-pat: ${{ steps.app-token.outputs.token }}
+          commit-status-github-token: ${{ secrets.GITHUB_TOKEN }}
+          debug: false
+          repository: ${{ inputs.organization }}/${{ inputs.repository }}
+          ref: ${{ github.sha }}
+
+      - name: Deactivate deployment
+        uses: chrnorm/deployment-status@v2.0.3
+        if: ${{ steps.deployment.outputs.id != '' }}
+        with:
+          state: inactive
+          token: ${{ github.token }}
+          deployment-id: ${{ steps.deployment.outputs.id }}
+
+      - name: Cleanup label
+        uses: cloudposse/github-action-preview-labels-cleanup@v0.2.0
+        if: ${{ ! inputs.open }}
+        with:
+          labels_env: ${{ inputs.labels_env }}
+          env: ${{ inputs.environment }}

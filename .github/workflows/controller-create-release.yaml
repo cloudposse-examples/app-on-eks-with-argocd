@@ -1,0 +1,80 @@
+name: Controller - Create Release
+
+on:
+  workflow_call:
+    inputs:
+      app-id:
+        description: "The ID of the GitHub app used to generate the IAT when creating the release"
+        required: true
+        type: string
+      sha:
+        description: "The git SHA for the release"
+        required: true
+        type: string
+      enable-prereleases:
+        description: "Enable automatic creation and publishing of prereleases."
+        required: false
+        default: true
+        type: boolean
+      jobs-release-drafter-timeout-minutes:
+        default: 15
+        type: number
+      runs-on:
+        description: "Overrides job runs-on setting (json-encoded list)"
+        type: string
+        required: false
+        default: '["ubuntu-latest"]'
+      config-path:
+        description: "Path to the release-drafter config file (relative to .github/)"
+        type: string
+        required: false
+        default: "configs/release-drafter.yml"
+
+jobs:
+  release-drafter:
+    timeout-minutes: ${{ inputs.jobs-release-drafter-timeout-minutes }}
+    environment: release # Required to retrieve the release drafter app private key
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    # Images need to be built prior to a new release.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # https://github.com/orgs/community/discussions/25281
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ inputs.app-id }}
+          private-key: ${{ secrets.RELEASE_DRAFTER_APP_PRIVATE_KEY }}
+      # Delete all draft releases so that release drafter creates a new (pre)release
+      # instead of updating the latest existing draft release.
+      - uses: sgpublic/delete-release-action@v1.1
+        if: inputs.enable-prereleases
+        with:
+          draft-drop: true
+          draft-drop-count: -1
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+      # Publish a prerelease as Pull Requests are merged into "main"
+      - name: Create/Update Draft release
+        uses: release-drafter/release-drafter@v6
+        if: inputs.enable-prereleases
+        with:
+          publish: true
+          prerelease: true
+          prerelease-identifier: rc
+          config-name: ${{ inputs.config-path }}
+          commitish: ${{ inputs.sha }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      # Draft a release as Pull Requests are merged into "main"
+      - name: Create/Update Draft release
+        uses: release-drafter/release-drafter@v6
+        with:
+          publish: false # draft but do not publish
+          config-name: ${{ inputs.config-path }}
+          commitish: ${{ inputs.sha }}
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}

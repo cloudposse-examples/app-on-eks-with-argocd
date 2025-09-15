@@ -1,0 +1,194 @@
+name: Controller — ArgoCD Environment Interface
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: "The runner to use"
+        required: false
+        type: string
+        default: '["self-hosted", "default"]'
+      environment:
+        description: "The environment name"
+        required: true
+        type: string
+      namespace:
+        description: "Namespace name"
+        required: true
+        type: string
+    outputs:
+      # Outputs for Kubernetes Environment
+      environment:
+        description: "The environment name"
+        value: ${{ jobs.environment.outputs.environment }}
+      namespace:
+        description: "The namespace name"
+        value: ${{ jobs.environment.outputs.namespace }}
+      cluster:
+        description: "The cluster name"
+        value: ${{ jobs.environment.outputs.cluster }}
+      cluster_region:
+        description: "The region name"
+        value: ${{ jobs.environment.outputs.cluster_region }}
+      cluster_role:
+        description: "The role name"
+        value: ${{ jobs.environment.outputs.cluster_role }}
+      cluster_ssm_path:
+        description: "The SSM path for the cluster"
+        value: ${{ jobs.environment.outputs.cluster_ssm_path }}
+      is_prod:
+        description: "Whether the environment is prod"
+        value: ${{ jobs.environment.outputs.is_prod }}
+
+jobs:
+  environment:
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    outputs:
+      # The output keys must match the keys defined in the upstream composite action:
+      # https://github.com/cloudposse/github-action-kubernetes-environment/blob/v0.4.1/action.yml#L28-L46
+      environment: ${{ steps.environment-info.outputs.name }}
+      namespace: ${{ steps.set-namespace.outputs.namespace }}
+      cluster: ${{ steps.environment-info.outputs.cluster }}
+      cluster_role: ${{ steps.environment-info.outputs.role }}
+      cluster_ssm_path: ${{ steps.environment-info.outputs.ssm-path }}
+      # Region is not supported by the upstream composite action, so we handle it separately
+      cluster_region: ${{ steps.set-region.outputs.region }}
+      # We need to determine if the environment is prod or not in order to use the correct GitHub App Token
+      is_prod: ${{ steps.determine-prod.outputs.is_prod }}
+    steps:
+      - name: Get Environment Info
+        uses: cloudposse/github-action-kubernetes-environment@v0.4.1
+        id: environment-info
+        with:
+          environment: ${{ inputs.environment }}
+          namespace: ${{ inputs.namespace }}
+          config: |
+            preview:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-frontoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-frontoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-dev-use1-frontoffice-eks-cluster
+              reformat: branch-name
+            preview-frontoffice:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-frontoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-frontoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-dev-use1-frontoffice-eks-cluster
+              reformat: branch-name
+            preview-backoffice:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-backoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-backoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-dev-use1-backoffice-eks-cluster
+              reformat: branch-name
+            preview-edge:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-edge/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-edge-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-dev-use1-edge-eks-cluster
+              reformat: branch-name
+            dev-frontoffice:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-frontoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-frontoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-dev-use1-frontoffice-eks-cluster
+            dev-backoffice:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-backoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-backoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-dev-use1-backoffice-eks-cluster
+            dev-edge:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-edge/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-edge-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-dev-use1-edge-eks-cluster
+            qa-frontoffice:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/qa/use1-frontoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-qa-use1-frontoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-qa-use1-frontoffice-eks-cluster
+            qa-backoffice:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/qa/use1-backoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-qa-use1-backoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-qa-use1-backoffice-eks-cluster
+            qa-edge:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/qa/use1-edge/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-qa-use1-edge-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-qa-use1-edge-eks-cluster
+            staging-frontoffice:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/staging/use1-frontoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-staging-use1-frontoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-staging-use1-frontoffice-eks-cluster
+            staging-backoffice:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/staging/use1-backoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-staging-use1-backoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-staging-use1-backoffice-eks-cluster
+            staging-edge:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/staging/use1-edge/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-staging-use1-edge-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-staging-use1-edge-eks-cluster
+            uat-frontoffice:
+              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/uat/use1-frontoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-uat-use1-frontoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-uat-use1-frontoffice-eks-cluster
+            uat-backoffice:
+              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/uat/use1-backoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-uat-use1-backoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-uat-use1-backoffice-eks-cluster
+            uat-edge:
+              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/uat/use1-edge/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-uat-use1-edge-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-uat-use1-edge-eks-cluster
+            prod-frontoffice:
+              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/prod/use1-frontoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-prod-use1-frontoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-prod-use1-frontoffice-eks-cluster
+            prod-backoffice:
+              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/prod/use1-backoffice/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-prod-use1-backoffice-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-prod-use1-backoffice-eks-cluster
+            prod-edge:
+              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/prod/use1-edge/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-prod-use1-edge-eks-gha
+              namespace: ${{ inputs.namespace }}
+              ssm-path: platform/acme-prod-use1-edge-eks-cluster
+
+      - name: Set Region
+        id: set-region
+        run: |
+          # cloudposse/github-action-kubernetes-environment does not support returning region.
+          # So instead, we hardcode the region here since it's the same anyway
+          region="us-east-1"
+          echo "region=$region" >> "$GITHUB_OUTPUT"
+      
+      - name: Set Namespace Output
+        id: set-namespace
+        run: echo "namespace=${{ inputs.namespace }}" >> $GITHUB_OUTPUT
+
+      - name: Determine if Environment is Prod
+        id: determine-prod
+        run: |
+          if [[ "${{ inputs.environment }}" =~ ^(uat-|prod-) ]]; then
+            echo "is_prod=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "is_prod=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Echo Environment Info
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
+          echo "Namespace: ${{ inputs.namespace }}"
+          echo "Cluster: ${{ steps.environment-info.outputs.cluster }}"
+          echo "Cluster Region: ${{ steps.set-region.outputs.region }}"
+          echo "Cluster Role: ${{ steps.environment-info.outputs.cluster-role }}"
+          echo "Cluster SSM Path: ${{ steps.environment-info.outputs.ssm-path }}"

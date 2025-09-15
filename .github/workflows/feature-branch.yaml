@@ -1,0 +1,67 @@
+name: Feature Branch
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release/**
+    types: [opened, synchronize, reopened, closed, labeled, unlabeled]
+  merge_group:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read # required to read code in the repository
+  id-token: write # required to request JWT tokens (AWS authentication and GitHub App tokens)
+  deployments: write # required to create deployments for GitHub environments
+  issues: write # required for autolabeler
+  pull-requests: write # required for autolabeler
+  statuses: read # required for "synchronously: true"
+
+jobs:
+  autolabeler:
+    name: Auto Label PR
+    uses: .github/workflows/controller-pr-autolabeler.yaml@main
+    if: github.event_name != 'merge_group'
+    with:
+      runs-on: '["self-hosted", "default"]'
+      config-path: configs/release-drafter.yml
+
+  ci-build-and-test:
+    name: Build and Test
+    needs: discover
+    if: ${{ fromJSON(needs.discover.outputs.matrix)[0].application != 'no-changes' }}
+    uses: .github/workflows/ci-docker-app-build.yaml@main
+    with:
+      image_name: ${{ github.event.repository.name }}
+      organization: ${{ github.event.repository.owner.login }}
+      repository: ${{ github.event.repository.name }}
+      runs-on: '["self-hosted", "medium"]'
+    secrets:
+      registry-username: ${{ secrets.ARTIFACTORY_USER }}
+      registry-password: ${{ secrets.ARTIFACTORY_PASS }}
+
+  cd-preview:
+    name: Deploy or Destroy ${{ matrix.application }} Preview
+    needs: [discover, ci-build-and-test]
+    if: ${{ fromJSON(needs.discover.outputs.matrix)[0].application != 'no-changes' && github.event_name != 'merge_group' }}
+    uses: .github/workflows/cd-preview-argocd.yaml@main
+    with:
+      runs-on: '["self-hosted", "medium"]'
+      toolchain: helmfile
+      application: ${{ github.event.repository.name }}
+      image: ${{ needs.ci-build-and-test.outputs.image }}
+      tag: ${{ needs.ci-build-and-test.outputs.tag }}
+      organization: "${{ github.event.repository.owner.login }}"
+      repository: "${{ github.event.repository.name }}"
+      ref: ${{ github.event.pull_request.head.ref }}
+      path: deploy
+      exclusive: false
+      open: ${{ github.event.pull_request.state == 'open' }}
+      labels: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+      env-label: |
+        preview: deploy/preview
+      synchronously: false
+    secrets: inherit

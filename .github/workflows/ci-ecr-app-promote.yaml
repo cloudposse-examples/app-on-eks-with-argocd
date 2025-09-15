@@ -1,0 +1,110 @@
+name: CI - Promote Docker image (ECR)
+
+on:
+  workflow_call:
+    inputs:
+      organization:
+        description: "Repository owner organization (ex. acme for repo acme/example)"
+        required: true
+        type: string
+      repository:
+        description: "Repository name (ex. example for repo acme/example)"
+        required: true
+        type: string
+      app:
+        description: "Application name. Used with monorepo pattern when there are several applications in the repo"
+        required: false
+        type: string
+      version:
+        description: "New version tag"
+        required: true
+        type: string
+      matrix-step-name:
+        description: "Matrix step name - matrix output workaround. [Read more](https://github.com/cloudposse/github-action-matrix-outputs-write#introduction)"
+        required: false
+        type: string
+      matrix-key:
+        description: "Matrix key - matrix output workaround. [Read more](https://github.com/cloudposse/github-action-matrix-outputs-write#introduction)"
+        required: false
+        type: string
+      runs-on:
+        description: "Overrides job runs-on setting (json-encoded list)"
+        type: string
+        required: false
+        default: '["ubuntu-latest"]'
+      ecr-region:
+        type: string
+        description: "ECR AWS region. Required if `registry` points to ECR."
+        required: false
+        default: ""
+      ecr-iam-role:
+        type: string
+        description: "IAM Role ARN provide ECR write/read access. Required if `registry` points to ECR."
+        required: false
+        default: ""
+      registry:
+        type: string
+        description: "OCI registry for helm charts (also applies to ECR if `ecr-region` and `ecr-iam-role` are supplied."
+        required: true
+    outputs:
+      image:
+        description: "Docker Image"
+        value: ${{ jobs.promote.outputs.image }}
+      tag:
+        description: "Docker image tag"
+        value: ${{ jobs.promote.outputs.tag }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  promote:
+    runs-on: ${{ fromJSON(inputs.runs-on) }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: ${{ inputs.ecr-region }}
+          role-to-assume: ${{ inputs.ecr-iam-role }}
+
+      # https://github.com/orgs/community/discussions/27086#discussioncomment-3254548
+      - name: set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: ${{ inputs.organization }}
+
+      - name: Context
+        id: context
+        uses: cloudposse/github-action-yaml-config-query@0.1.3
+        with:
+          query: .${{ inputs.app == '' }}
+          config: |
+            true:
+              image: ${{ inputs.repository }}         
+            false:
+              image: ${{ inputs.repository }}/${{ inputs.app }}
+
+      - uses: cloudposse/github-action-docker-promote@0.3.0
+        id: promote
+        with:
+          registry: ${{ inputs.registry }}
+          organization: ${{ env.OWNER_LC }}
+          repository: ${{ steps.context.outputs.image }}
+          from: sha-${{ github.sha }}
+          to: ${{ inputs.version }}
+          use_metadata: false
+
+      - uses: cloudposse/github-action-matrix-outputs-write@1.0.0
+        id: outputs
+        with:
+          matrix-step-name: ${{ inputs.matrix-step-name }}
+          matrix-key: ${{ inputs.matrix-key }}
+          outputs: |
+            image: ${{ steps.promote.outputs.image }}
+            tag: ${{ steps.promote.outputs.tag }}
+
+    outputs:
+      image: ${{ fromJson(steps.outputs.outputs.result).image }}
+      tag: ${{ fromJson(steps.outputs.outputs.result).tag }}
