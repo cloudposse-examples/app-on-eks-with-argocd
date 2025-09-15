@@ -8,6 +8,8 @@ on:
 permissions:
   contents: write
   id-token: write
+  deployments: write
+  pull-requests: write # for release-drafter/release-drafter
 
 jobs:
   do:
@@ -23,3 +25,33 @@ jobs:
       secret-outputs-passphrase: "${{ secrets.GHA_SECRET_OUTPUT_PASSPHRASE }}"
       ecr-region: "${{ secrets.ECR_REGION }}"
       ecr-iam-role: "${{ secrets.ECR_IAM_ROLE }}"
+
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  # Build and test each application image for the current git SHA
+  ci-build-and-test:
+    name: Build and Test
+    uses: .github/workflows/ci-docker-app-build.yaml
+    with:
+      image_name: ${{ github.event.repository.name }}
+      organization: ${{ github.event.repository.owner.login }}
+      repository: ${{ github.event.repository.name }}
+      runs-on: '["self-hosted", "medium"]'
+      workdir: .
+    secrets:
+      registry-username: ${{ secrets.ARTIFACTORY_USER }}
+      registry-password: ${{ secrets.ARTIFACTORY_PASS }}
+
+  # Create a draft release for each application
+  release-drafter:
+    name: Create Release
+    needs: [ci-build-and-test]
+    uses: .github/workflows/controller-create-release.yaml
+    with:
+      runs-on: '["self-hosted", "default"]'
+      sha: ${{ github.sha }}
+    secrets: inherit

@@ -6,19 +6,85 @@ on:
 permissions:
   id-token: write
   contents: write
+  deployments: write
+  pull-requests: write
 
 jobs:
-  perform:
-    uses: ./.github/workflows/eks-argocd-release.yml
+  promote:
+    name: Promote Image
+    concurrency:
+      group: ${{ github.workflow }}
+      cancel-in-progress: true
+    uses: .github/workflows/ci-ecr-app-promote.yaml
     with:
-      organization: "${{ github.event.repository.owner.login }}"
-      repository: "${{ github.event.repository.name }}"
-      path: deploy
+      runs-on: '["self-hosted", "default"]'
+      image_name: ${{ github.event.repository.name }}
+      organization: ${{ github.event.repository.owner.login }}
+      repository: ${{ github.event.repository.name }}
       version: ${{ github.event.release.tag_name }}
     secrets:
-      github-private-actions-nonprod-pat: "${{ secrets.ARGOCD_GITHUB_NONPROD }}"
-      github-private-actions-prod-pat: "${{ secrets.ARGOCD_GITHUB_PROD }}"
-      registry: "${{ secrets.ECR_REGISTRY }}"
-      secret-outputs-passphrase: "${{ secrets.GHA_SECRET_OUTPUT_PASSPHRASE }}"
-      ecr-region: "${{ secrets.ECR_REGION }}"
-      ecr-iam-role: "${{ secrets.ECR_IAM_ROLE }}"
+      registry-username: ${{ secrets.ARTIFACTORY_USER }}
+      registry-password: ${{ secrets.ARTIFACTORY_PASS }}
+
+  dev:
+    name: Deploy to Dev
+    needs: [promote]
+    uses: .github/workflows/cd-argocd.yaml
+    with:
+      runs-on: '["self-hosted", "default"]'
+      toolchain: helmfile
+      application: ${{ github.event.repository.name }}
+      environment: dev
+      image: ${{ needs.promote.outputs.image }}
+      tag: ${{ needs.promote.outputs.tag }}
+      organization: "${{ github.event.repository.owner.login }}"
+      repository: "${{ github.event.repository.name }}"
+      ref: ${{ github.sha }}
+      path: deploy
+      synchronously: false
+    secrets: inherit
+
+  staging:
+    name: Deploy to Staging
+    needs: [promote, dev]
+    uses: .github/workflows/cd-argocd.yaml
+    with:
+      runs-on: '["self-hosted", "default"]'
+      toolchain: helmfile
+      application: ${{ github.event.repository.name }}
+      environment: staging
+      image: ${{ needs.promote.outputs.image }}
+      tag: ${{ needs.promote.outputs.tag }}
+      organization: "${{ github.event.repository.owner.login }}"
+      repository: "${{ github.event.repository.name }}"
+      ref: ${{ github.sha }}
+      path: deploy
+      synchronously: false
+    secrets: inherit
+
+  prod:
+    name: Deploy to Prod
+    needs: [promote, staging]
+    uses: .github/workflows/cd-argocd.yaml
+    with:
+      runs-on: '["self-hosted", "default"]'
+      toolchain: helmfile
+      application: ${{ github.event.repository.name }}
+      environment: prod
+      image: ${{ needs.promote.outputs.image }}
+      tag: ${{ needs.promote.outputs.tag }}
+      organization: "${{ github.event.repository.owner.login }}"
+      repository: "${{ github.event.repository.name }}"
+      ref: ${{ github.sha }}
+      path: deploy
+      synchronously: false
+    secrets: inherit
+
+  comment:
+    name: Comment on PRs
+    runs-on: ["self-hosted", "default"]
+    steps:
+      - uses: cloudposse-github-actions/pr-comment-on-release@v0.2.0
+        with:
+          include_regex: "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+

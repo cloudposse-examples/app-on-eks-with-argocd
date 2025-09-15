@@ -64,104 +64,26 @@ jobs:
           namespace: ${{ inputs.namespace }}
           config: |
             preview:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-frontoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-frontoffice-eks-gha
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/plat/use1-dev/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-plat-use1-dev-eks-gha
               namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-dev-use1-frontoffice-eks-cluster
+              ssm-path: platform/acme-plat-use1-dev-eks-cluster
               reformat: branch-name
-            preview-frontoffice:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-frontoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-frontoffice-eks-gha
+            plat-dev:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/plat/use1-dev/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-plat-use1-dev-eks-gha
               namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-dev-use1-frontoffice-eks-cluster
-              reformat: branch-name
-            preview-backoffice:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-backoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-backoffice-eks-gha
+              ssm-path: platform/acme-plat-use1-dev-eks-cluster
+            plat-staging:
+              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/plat/use1-staging/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-plat-use1-staging-eks-gha
               namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-dev-use1-backoffice-eks-cluster
-              reformat: branch-name
-            preview-edge:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-edge/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-edge-eks-gha
+              ssm-path: platform/acme-plat-use1-staging-eks-cluster
+            plat-prod:
+              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/plat/use1-prod/apps
+              cluster-role: arn:aws:iam::111111111111:role/acme-plat-use1-prod-eks-gha
               namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-dev-use1-edge-eks-cluster
-              reformat: branch-name
-            dev-frontoffice:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-frontoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-frontoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-dev-use1-frontoffice-eks-cluster
-            dev-backoffice:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-backoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-backoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-dev-use1-backoffice-eks-cluster
-            dev-edge:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/dev/use1-edge/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-dev-use1-edge-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-dev-use1-edge-eks-cluster
-            qa-frontoffice:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/qa/use1-frontoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-qa-use1-frontoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-qa-use1-frontoffice-eks-cluster
-            qa-backoffice:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/qa/use1-backoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-qa-use1-backoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-qa-use1-backoffice-eks-cluster
-            qa-edge:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/qa/use1-edge/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-qa-use1-edge-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-qa-use1-edge-eks-cluster
-            staging-frontoffice:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/staging/use1-frontoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-staging-use1-frontoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-staging-use1-frontoffice-eks-cluster
-            staging-backoffice:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/staging/use1-backoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-staging-use1-backoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-staging-use1-backoffice-eks-cluster
-            staging-edge:
-              cluster: https://github.com/acme/argocd-deploy-non-prod/blob/main/staging/use1-edge/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-staging-use1-edge-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-staging-use1-edge-eks-cluster
-            uat-frontoffice:
-              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/uat/use1-frontoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-uat-use1-frontoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-uat-use1-frontoffice-eks-cluster
-            uat-backoffice:
-              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/uat/use1-backoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-uat-use1-backoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-uat-use1-backoffice-eks-cluster
-            uat-edge:
-              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/uat/use1-edge/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-uat-use1-edge-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-uat-use1-edge-eks-cluster
-            prod-frontoffice:
-              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/prod/use1-frontoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-prod-use1-frontoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-prod-use1-frontoffice-eks-cluster
-            prod-backoffice:
-              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/prod/use1-backoffice/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-prod-use1-backoffice-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-prod-use1-backoffice-eks-cluster
-            prod-edge:
-              cluster: https://github.com/acme/argocd-deploy-prod/blob/main/prod/use1-edge/apps
-              cluster-role: arn:aws:iam::111111111111:role/acme-prod-use1-edge-eks-gha
-              namespace: ${{ inputs.namespace }}
-              ssm-path: platform/acme-prod-use1-edge-eks-cluster
+              ssm-path: platform/acme-plat-use1-prod-eks-cluster
 
       - name: Set Region
         id: set-region
