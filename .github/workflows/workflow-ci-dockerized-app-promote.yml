@@ -1,6 +1,6 @@
 name: |-
   CI - Promote Docker image 
-  
+
   Promote Docker image to specific version tag and push it to ECR
 
   ### Usage 
@@ -88,6 +88,13 @@ jobs:
           aws-region: ${{ secrets.ecr-region }}
           role-to-assume: ${{ secrets.ecr-iam-role }}
 
+      # https://github.com/orgs/community/discussions/27086#discussioncomment-3254548
+      - name: set lower case owner name
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: "${{ github.repository_owner }}"
+
       - name: Context
         id: context
         uses: cloudposse/github-action-yaml-config-query@0.1.3
@@ -103,7 +110,7 @@ jobs:
         id: promote
         with:
           registry: ${{ secrets.registry }}
-          organization: ${{ inputs.organization }}
+          organization: ${{ env.OWNER_LC }}
           repository: ${{ steps.context.outputs.image }}
           from: sha-${{ github.sha }}
           to: ${{ inputs.version }}
@@ -123,7 +130,7 @@ jobs:
           matrix-key: ${{ inputs.matrix-key }}
           outputs: |
             image: ${{ steps.image.outputs.out }}
-            tag: ${{ steps.promote.outputs.tag }}            
+            tag: ${{ steps.promote.outputs.tag }}
 
     outputs:
       image: ${{ fromJson(steps.outputs.outputs.result).image }}
