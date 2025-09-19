@@ -61,7 +61,9 @@ It's 100% Open Source and licensed under the [APACHE2](LICENSE).
 
 
 
-The workflows included with this example are consolidated to this single repository and are intentionally not divided into [GitHub reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows). We've done this to better demo a single example and simplify development overhead. However, in practice an organization may have many application repositories that use the same workflows. In that case, we recommend moving the reusable workflows into separate repositories, where they can be shared across application repositories from a central point. In this example move all `eks-argocd-*` and all `workflow-*` workflow files to the reusable location, such as a new repository called `github-action-workflows`.
+We've consolidated all the workflows, including the shared/resuable [GitHub reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows). We've done this to make it easier for Developers to understand how the example leverages all the workflows. In practice, we recommend moving the reusable workflows into a centralized repository, where they can be shared by other application repositories.
+
+For example, from this example we would recommend moving all the `eks-argocd-*` and all `workflow-*` workflow files to a centralized repository (e.g. a respository named `github-action-workflows`). The best solution will depend on your GitHub organization structure and team size. Pick what works for you and your team.
 
 ```console
 .github/workflows
